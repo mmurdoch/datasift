@@ -3,6 +3,9 @@
 1. Install Python 2.7.x
 2. Run `pip install requests`
 
+# Unit tests
+1. Run `python marvelous-test.py` to execute the unit tests
+
 1. Run `python characters.py <public_key> <private_key>` (where `<public_key>`
   and `private_key` are your Marvel developer keys -
   (see here for details)[http://developer.marvel.com/signup]

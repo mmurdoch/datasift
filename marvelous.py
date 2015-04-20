@@ -1,7 +1,6 @@
 from __future__ import print_function
 import codecs
 import csv
-import cStringIO
 import hashlib
 import json
 import os
@@ -34,16 +33,17 @@ class CharacterRetriever(object):
     CHARACTERS_URI = 'http://gateway.marvel.com:80/v1/public/characters'
     LIMIT = 100
     TIMEOUT_SECONDS = 10
-    RETRIES = 3
 
     """
     Retrieves details of marvel characters via the Marvel API.
+
+    :param string public_key: Your Marvel API public key
+    :param string private_key: Your Marvel API private key
     """
     def __init__(self, public_key, private_key):
         self._public_key = public_key
         self._private_key = private_key
 
-    # TODO Test this
     def _create_hash(self, request_id):
         md5 = hashlib.md5()
         md5.update(request_id)
@@ -91,6 +91,9 @@ class CharacterRetriever(object):
         return response
 
     def run(self):
+        """
+        Runs the character retriever, storing the output.
+        """
         offset = 0
 
         characters_to_get = True
