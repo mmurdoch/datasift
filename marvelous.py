@@ -1,6 +1,7 @@
 from __future__ import print_function
 import codecs
 import csv
+import cStringIO
 import hashlib
 import json
 import os
@@ -58,8 +59,12 @@ class CharacterRetriever(object):
 
     def _extract_character(self, result):
         return [
-            #result['name'], result['id'], #result['description'],
-            result['comics']['available'], result['stories']['available']
+            # Prevent non-ASCII characters from preventing CSV storage
+            result['name'].encode('ascii', 'ignore'),
+            result['id'],
+            result['description'].encode('ascii', 'ignore'),
+            result['comics']['available'],
+            result['stories']['available']
         ]
 
     def _get_characters(self, get_function, offset):
