@@ -90,6 +90,8 @@ class CharacterRetriever(object):
         if status_code != 200:
             raise ResponseError(status_code, response.reason)
 
+        return response
+
 
     def run(self):
         offset = 0
@@ -104,41 +106,8 @@ class CharacterRetriever(object):
             print('Retrieving characters {0} to {1}'.format(
                 offset, offset+self.LIMIT-1))
 
-##
+            response = self._get_characters(requests.get, offset)
 
-            request_id = str(uuid.uuid4())
-            hash = self._create_hash(request_id)
-
-            parameters = {
-                'apikey': self._public_key, 'ts': request_id, 'hash': hash,
-                'offset': offset, 'limit': self.LIMIT }
-
-            response = None
-
-            # TODO Add proper retry logic
-            try:
-                response = requests.get(
-                    self.CHARACTERS_URI, params = parameters,
-                    timeout = self.TIMEOUT_SECONDS)
-            except requests.exceptions.Timeout:
-                print('Error: Timeout waiting for response from {0}, retry later'.format(
-                    self.CHARACTERS_URI))
-                import time
-                time.sleep(10)
-                try:
-                    response = requests.get(
-                        CHARACTERS_URI, params = parameters, timeout = 10)
-                except requests.exceptions.Timeout:
-                    print('Error: Timeout waiting for response from {0}, retry later'.format(
-                        CHARACTERS_URI))
-                    exit(1)
-
-            status_code = response.status_code
-            if status_code != 200:
-                reason = response.reason
-                print('Error received: {0} ({1})'.format(reason, status_code))
-                exit(1)
-##
             content_json = response.text
             content = json.loads(content_json)
             data = content['data']
