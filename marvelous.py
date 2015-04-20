@@ -134,3 +134,18 @@ class CharacterRetriever(object):
                 if expected_final_count != count:
                     print('Warning: expected {0} characters but received {1}'.format(
                         expected_final_count, count))
+
+
+class InteractionReceiver(object):
+    """
+    Retrieves interactions via the DataSift API.
+
+    :param string username: Your DataSift username
+    :param string api_key: Your DataSift API key
+    """
+    def __init__(self, username, api_key):
+        self._username = username
+        self._api_key = api_key
+
+    def get_csdl(self, character_names):
+        return ''

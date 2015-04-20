@@ -1,20 +1,13 @@
 from marvelous import CharacterRetriever
-from marvelous import TimeoutError
+from marvelous import InteractionReceiver
 from marvelous import ResponseError
+from marvelous import TimeoutError
 import requests.exceptions
 import unittest
 
 
 class CharacterRetrieverTest(unittest.TestCase):
     RETRIEVER = CharacterRetriever('public_key', 'private_key')
-
-    def test_next_offset_good(self):
-        self.assertEquals(700,
-            self.RETRIEVER._get_next_offset('characters-600-699'))
-
-    def test_next_offset_bad(self):
-        self.assertEquals(None,
-            self.RETRIEVER._get_next_offset('characters-600-BAD'))
 
     def test_is_character_file(self):
         self.assertTrue(self.RETRIEVER._is_character_file('characters-20-38'))
@@ -51,6 +44,13 @@ class CharacterRetrieverTest(unittest.TestCase):
         except ResponseError:
             # Success
             pass
+
+
+class InteractionReceiverTest(unittest.TestCase):
+    def test_get_csdl(self):
+        receiver = InteractionReceiver('username', 'api_key')
+
+        self.assertEquals('', receiver.get_csdl([]))
 
 
 if __name__ == '__main__':
