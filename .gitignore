@@ -1,5 +1,5 @@
 .DS_Store
 .Python
 *.pyc
-characters.csv
+*.csv
 interactions/*
