@@ -148,4 +148,7 @@ class InteractionReceiver(object):
         self._api_key = api_key
 
     def get_csdl(self, character_names):
-        return ''
+        return ('interaction.type == "tumblr" AND ' +
+               'language.tag == "en" AND ' +
+               '(interaction.content contains_any "' + character_names + '" OR' +
+               ' interaction.hashtags contains_any "' + character_names + '")')
