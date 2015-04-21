@@ -47,15 +47,14 @@ class CharacterRetrieverTest(unittest.TestCase):
 
 
 class InteractionReceiverTest(unittest.TestCase):
-    def test_get_one_character_csdl(self):
+    def test_get_csdl(self):
         receiver = InteractionReceiver('username', 'api_key')
-
         self.assertEquals('interaction.type == "tumblr" AND ' +
                'language.tag == "en" AND ' +
                '(' +
-               'interaction.content contains_any "Treeman" OR ' +
-               'interaction.hashtags contains_any "Treeman"' +
-               ')', receiver.get_csdl('Treeman'))
+               'interaction.content contains_any "Apeman,Human" OR ' +
+               'interaction.hashtags contains_any "Apeman,Human"' +
+               ')', receiver.get_csdl('Apeman,Human'))
 
 
 if __name__ == '__main__':
