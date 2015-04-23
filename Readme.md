@@ -47,9 +47,7 @@ them and print the results.
 
 # Driving Question
 Marvel wants to serve its customers better. To achieve this they want to
-understand which of their well known characters are most popular and to
-check whether the number of comics and stories available for those characters
-are in-line with this popularity.
+understand which of their characters are most popular.
 
 # Notes
 ## Feeds

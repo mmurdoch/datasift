@@ -27,7 +27,16 @@ try:
         processor = InteractionFileProcessor(summarizer)
 
     processor.process()
-    summary = summarizer.summarize()
+
+    # Ignore characters with fewer than 30 mentions and order the summary
+    # statistics descending by mean sentiment
+    summary = filter(lambda row: row['count'] >= 30, summarizer.summarize())
+    summary = sorted(summary, key=lambda row: row['mean'], reverse=True)
+
+    print('Name\tMentions\tMean Sentiment\tStd. Dev. Sentiment')
+    for row in summary:
+        print('{0}\t{1}\t{2}\t{3}'.format(
+            row['name'], row['count'], row['mean'], row['stddev']))
 
 
 # Note: Ctrl+C causes stack trace due to not being handled in other threads...
