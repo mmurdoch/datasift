@@ -1,46 +1,35 @@
 from __future__ import print_function
+from marvelous import InteractionSummarizer
+from marvelous import InteractionStreamProcessor
+from marvelous import InteractionFileProcessor
+import csv
 import datasift
+import json
+import os
 import sys
 
-client = None
-
-datasift_username = sys.argv[1]
-datasift_api_key = sys.argv[2]
-
-client = datasift.Client(datasift_username, datasift_api_key, ssl=False)
-
-csdl = ('interaction.type == "tumblr" AND '
-        'language.tag == "en" AND ('
-        'interaction.content contains_any "Spider-Man" OR '
-        'interaction.hashtags contains_any "Spider-Man")')
-
-filter = client.compile(csdl)
-
-@client.on_delete
-def on_delete(interaction):
-    print('You must delete this to be compliant with T&Cs: {0}'.format(interaction))
-
-@client.on_closed
-def on_close(wasClean, code, reason):
-    print('Stream subscriber shutting down because {0}'.format(reason))
-
-@client.on_ds_message
-def on_ds_message(message):
-    print('DS Message {0}'.format(message))
-
-@client.on_open
-def on_open():
-    print('Connected to DataSift')
-    @client.subscribe(filter['hash'])
-    def on_interaction(interaction):
-        print('{0} by {1} ({2})'.format(
-            interaction['interaction']['id'],
-            interaction['interaction']['author']['username'],
-            interaction['interaction']['created_at']))
-        print('-')
-        #print('{0}'.format(interaction))
 try:
-    client.start_stream_subscriber()
+    argument_count = len(sys.argv)
+
+    if argument_count == 2 or argument_count > 3:
+        print('Usage: python sift.py [<datasift_username> <datasift_api_key>]')
+        exit(0)
+
+    summarizer = InteractionSummarizer()
+    processor = None
+    if argument_count == 3:
+        datasift_username = sys.argv[1]
+        datasift_api_key = sys.argv[2]
+
+        processor = InteractionStreamProcessor(
+            datasift_username, datasift_api_key, summarizer)
+    else:
+        processor = InteractionFileProcessor(summarizer)
+
+    processor.process()
+    summary = summarizer.summarize()
+
+
+# Note: Ctrl+C causes stack trace due to not being handled in other threads...
 except KeyboardInterrupt:
-    print('Handling Ctrl+C')
-    sys.exit()
+    pass
