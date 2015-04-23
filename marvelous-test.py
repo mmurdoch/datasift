@@ -9,12 +9,6 @@ import unittest
 class CharacterRetrieverTest(unittest.TestCase):
     RETRIEVER = CharacterRetriever('public_key', 'private_key')
 
-    def test_is_character_file(self):
-        self.assertTrue(self.RETRIEVER._is_character_file('characters-20-38'))
-
-    def test_is_not_character_file(self):
-        self.assertFalse(self.RETRIEVER._is_character_file('marvelous.py'))
-
     def test_timeout_returns_no_characters(self):
         def timeout_thrower(uri, **kwargs):
             raise requests.exceptions.Timeout
@@ -61,18 +55,11 @@ class InteractionReceiverTest(unittest.TestCase):
             'interaction.hashtags contains "Human" } ' +
             'return { interaction.type == "tumblr" AND ' +
             'language.tag == "en" AND ' +
+            'links.domain in "marvel.com" AND ' +
             '(' +
             'interaction.content contains_any "Apeman,Human" OR ' +
             'interaction.hashtags contains_any "Apeman,Human"' +
             ') }', self.PROCESSOR._get_csdl(['Apeman','Human']))
-            #    def test_get_csdl(self):
-            #        self.assertEquals(
-            #            'interaction.type == "tumblr" AND ' +
-            #            'language.tag == "en" AND ' +
-            #            '(' +
-            #            'interaction.content contains_any "Apeman,Human" OR ' +
-            #            'interaction.hashtags contains_any "Apeman,Human"' +
-            #            ')', self.RECEIVER.get_csdl('Apeman,Human'))
 
 
 if __name__ == '__main__':

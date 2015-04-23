@@ -180,6 +180,7 @@ class InteractionStreamProcessor(object):
         return (self._get_tags_csdl(character_names) +
                'return { interaction.type == "tumblr" AND ' +
                'language.tag == "en" AND ' +
+               'links.domain in "marvel.com" AND ' +
                '(interaction.content contains_any "' + names_csv + '" OR' +
                ' interaction.hashtags contains_any "' + names_csv + '") }')
 
@@ -270,6 +271,19 @@ class InteractionSummarizer(object):
         :param interaction interaction: The interaction to add
         """
         print('Adding interaction: {0}'.format(interaction['interaction']['id']))
+        print('Tags: {0}'.format(interaction['interaction']['tags']))
+
+        sentiment = 0
+        if 'content' in interaction.get('salience', {}):
+            salience_content = interaction['salience']['content']
+            if 'sentiment' in salience_content:
+                sentiment = salience_content['sentiment']
+        print('Sentiment: {0}'.format(sentiment))
+
+        links = []
+        if 'url' in interaction.get('links', {}):
+            links = interaction['links']['url']
+        map(lambda l: print(l), links)
 
     def summarize(self):
         """
