@@ -55,7 +55,7 @@ class InteractionReceiverTest(unittest.TestCase):
             'interaction.hashtags contains "Human" } ' +
             'return { interaction.type == "tumblr" AND ' +
             'language.tag == "en" AND ' +
-            'links.domain in "marvel.com" AND ' +
+            'interaction.content contains "marvel" AND ' +
             '(' +
             'interaction.content contains_any "Apeman,Human" OR ' +
             'interaction.hashtags contains_any "Apeman,Human"' +

@@ -180,7 +180,7 @@ class InteractionStreamProcessor(object):
         return (self._get_tags_csdl(character_names) +
                'return { interaction.type == "tumblr" AND ' +
                'language.tag == "en" AND ' +
-               'links.domain in "marvel.com" AND ' +
+               'interaction.content contains "marvel" AND ' +
                '(interaction.content contains_any "' + names_csv + '" OR' +
                ' interaction.hashtags contains_any "' + names_csv + '") }')
 
