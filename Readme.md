@@ -37,7 +37,7 @@ Each interaction is tagged with the list of characters mentioned in either its
 Note: Stop interactions from being streamed by using Ctrl+C. This will cause a
 stack trace to be printed (and the summary will not be printed). Unfortunately
 there doesn't currently seem to be a way to stop the DataSift Python client
-gracefully.
+gracefully. [Issue raised on github](https://github.com/datasift/datasift-python/issues/54).
 
 # Summarize Character Mentions
 
@@ -61,9 +61,3 @@ Run `python marvelous-test.py` to execute the unit tests
 * Sentiment
 * Salience Entities
 * Klout
-
-# Stopping DataSift Python Client Cleanly
-There does not currently seem to be a way to cleanly stop the DataSift Python
-client cleanly. Ctrl+C causes it to throw KeyboardInterrupt exceptions even
-if handled in the calling code. The DataSift library uses twisted calling
-`reactor.run()` in `client.py` but contains no code to call `reactor.stop()`. [Issue raised on github](https://github.com/datasift/datasift-python/issues/54).
