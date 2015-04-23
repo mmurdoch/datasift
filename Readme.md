@@ -3,6 +3,10 @@
 2. Run `pip install requests`
 3. Run `pip install datasift`
 
+# Driving Question
+Marvel wants to serve its customers better. To achieve this they want to
+understand which of their characters are most popular.
+
 # Get Characters from Marvel
 
 * Run `python get-characters.py <public_key> <private_key>`
@@ -21,7 +25,7 @@ The columns in this file are:
 
 # Get Character Mentions from DataSift
 
-* Run `python sift.py <datasift_username> <datsift_api_key>`
+Run `python sift.py <datasift_username> <datsift_api_key>`
 
 Where `<datasift_username>` and `<datasift_api_key>` are your DataSift
 credentials. This will connect to DataSift and receive a stream of interactions
@@ -37,19 +41,15 @@ gracefully.
 
 # Summarize Character Mentions
 
-* Run `python sift.py`
+Run `python sift.py`
 
 This will read all interactions from the `interactions` directory, summarize
 them and print the results.
 
 # Run Unit Tests
-1. Run `python marvelous-test.py` to execute the unit tests
+Run `python marvelous-test.py` to execute the unit tests
 
-# Driving Question
-Marvel wants to serve its customers better. To achieve this they want to
-understand which of their characters are most popular.
-
-# Notes
+# DataSift Configuration Notes
 ## Feeds
 * Tumblr
 
@@ -62,9 +62,8 @@ understand which of their characters are most popular.
 * Salience Entities
 * Klout
 
-## Stopping DataSift Python Client Cleanly
+# Stopping DataSift Python Client Cleanly
 There does not currently seem to be a way to cleanly stop the DataSift Python
 client cleanly. Ctrl+C causes it to throw KeyboardInterrupt exceptions even
 if handled in the calling code. The DataSift library uses twisted calling
-`reactor.run()` in `client.py` but contains no code to call `reactor.stop()`. On
-non-Windows platforms the DataSift library uses Python multiprocessing.
+`reactor.run()` in `client.py` but contains no code to call `reactor.stop()`. [Issue raised]()
