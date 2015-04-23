@@ -262,51 +262,28 @@ class InteractionSummarizer(object):
         """
         Summarizes interactions.
         """
-        self._character_sentiments = { }
-
-    def _add_sentiment(self, character_names, sentiment):
-        for character_name in character_names:
-            if not character_name in self._character_sentiments:
-                self._character_sentiments[character_name] = []
-            character_sentiment = self._character_sentiments[character_name]
-            character_sentiment.append(sentiment)
-
-    def _get_sentiments(self, character_name):
-        if character_name in self._character_sentiments:
-            return self._character_sentiments[character_name]
-
-        return []
-
-    def _get_count_sentiment(self, character_name):
-        sentiments = self._get_sentiments(character_name)
-
-        return len(sentiments)
-
-    def _get_mean_sentiment(self, character_name):
-        sentiments = self._get_sentiments(character_name)
-
-        return sum(sentiments) / float(len(sentiments))
-
-    def _get_stddev_sentiment(self, character_name):
-        sentiments = self._get_sentiments(character_name)
-
-        mean = self._get_mean_sentiment(character_name)
-        sum_of_squares = sum((s-mean)**2 for s in sentiments)
-
-        count = self._get_count_sentiment(character_name)
-        if count < 2:
-            return 0
-
-        variance = sum_of_squares/(count - 1)
-        return variance**0.5
+        pass
 
     def add_interaction(self, interaction):
         """
-        Adds an interaction to the be summarized.
+        Adds an interaction to be summarized.
 
         :param interaction interaction: The interaction to add
         """
-        character_names = interaction['interaction']['tags']
+        character_names = map(
+            lambda n: n.encode('ascii'), interaction['interaction']['tags'])
+        created_at = interaction['interaction']['created_at']
+        who = interaction['interaction']['author']['username']
+
+        # Assume missing likes equals zero
+        likes = 0
+        if 'likes_global' in interaction['tumblr'].get('meta', {}):
+            likes = int(interaction['tumblr']['meta']['likes_global'])
+
+        # Assume missing reblogs equals zero
+        reblogs = 0
+        if 'reblogged_global' in interaction['tumblr'].get('meta', {}):
+            reblogs = int(interaction['tumblr']['meta']['reblogged_global'])
 
         # Assume missing sentiment is neutral
         sentiment = 0
@@ -315,26 +292,7 @@ class InteractionSummarizer(object):
             if 'sentiment' in salience_content:
                 sentiment = salience_content['sentiment']
 
-        self._add_sentiment(character_names, sentiment)
+        with codecs.open('interactions.csv', 'a', 'utf-8') as csv_file:
+            csv_writer = csv.writer(csv_file)
 
-    def summarize(self):
-        """
-        Summarizes the added interactions.
-
-        :return list: Summary statistics for the interactions. Each row in
-        the list corresponds to a single character and contains the following
-        keys::
-            'name' - the character's name
-            'mean' - the mean sentiment towards the character
-            'stddev' - the standard deviation of the sentiment towards the character
-            'count' - the number of interactions mentioning the character
-        """
-        summary = []
-
-        for character_name in self._character_sentiments.keys():
-            summary.append({'name': character_name,
-                'count': self._get_count_sentiment(character_name),
-                'mean': self._get_mean_sentiment(character_name),
-                'stddev': self._get_stddev_sentiment(character_name)})
-
-        return summary
+            csv_writer.writerow([character_names, created_at, who, likes, reblogs, sentiment])

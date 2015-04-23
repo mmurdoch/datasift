@@ -43,8 +43,17 @@ gracefully. [Issue raised on github](https://github.com/datasift/datasift-python
 
 Run `python sift.py`
 
-This will read all interactions from the `interactions` directory, summarize
-them and print the results.
+This will read all interactions from the `interactions` directory and extract:
+
+* the characters mentioned (interaction.tags)
+* when the event occurred (interaction.created_at)
+* who did the mention (interaction.author.username)
+* the social reach:
+  * (tumblr.meta.likes_global)
+  * (tumblr.meta.reblogged_global)
+* the sentiment (salience.content.sentiment)
+
+into the file `interactions.csv`.
 
 # Run Unit Tests
 Run `python marvelous-test.py` to execute the unit tests
