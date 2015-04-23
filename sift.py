@@ -33,10 +33,12 @@ try:
     summary = filter(lambda row: row['count'] >= 30, summarizer.summarize())
     summary = sorted(summary, key=lambda row: row['mean'], reverse=True)
 
-    print('Name\tMentions\tMean Sentiment\tStd. Dev. Sentiment')
+    print('\t\t\tSentiment')
+    print('Mentions\tMean\t\tStd. Dev.\tName')
     for row in summary:
-        print('{0}\t{1}\t{2}\t{3}'.format(
-            row['name'], row['count'], row['mean'], row['stddev']))
+        print('{0}\t\t{1}\t\t{2}\t\t\t{3}'.format(
+            row['count'], round(row['mean'],2), round(row['stddev'],2),
+            row['name']))
 
 
 # Note: Ctrl+C causes stack trace due to not being handled in other threads...
