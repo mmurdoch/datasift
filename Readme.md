@@ -27,6 +27,9 @@ Where `<datasift_username>` and `<datasift_api_key>` are your DataSift
 credentials. This will connect to DataSift and receive a stream of interactions
 which will be saved to files in the `interactions` directory and summarized.
 
+Each interaction is tagged with the list of characters mentioned in either its
+'content' or 'hashtags'.
+
 Note: Stop interactions from being streamed by using Ctrl+C. This will cause a
 stack trace to be printed (and the summary will not be printed). Unfortunately
 there doesn't currently seem to be a way to stop the DataSift Python client
