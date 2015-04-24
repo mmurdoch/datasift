@@ -51,6 +51,9 @@ class CharacterRetriever(object):
         self._public_key = public_key
         self._private_key = private_key
 
+        if os.path.isfile(CHARACTERS_FILE):
+            os.remove(CHARACTERS_FILE)
+
     def _create_hash(self, request_id):
         md5 = hashlib.md5()
         md5.update(request_id)
