@@ -258,11 +258,14 @@ class InteractionFileProcessor(object):
 
 
 class InteractionSummarizer(object):
+    INTERACTIONS_FILE = 'interactions.csv'
+
     def __init__(self):
         """
         Summarizes interactions.
         """
-        pass
+        if os.path.isfile(self.INTERACTIONS_FILE):
+            os.remove(self.INTERACTIONS_FILE)
 
     def add_interaction(self, interaction):
         """
@@ -270,6 +273,7 @@ class InteractionSummarizer(object):
 
         :param interaction interaction: The interaction to add
         """
+        id = interaction['interaction']['id']
         character_names = map(
             lambda n: n.encode('ascii'), interaction['interaction']['tags'])
         created_at = interaction['interaction']['created_at']
@@ -292,7 +296,9 @@ class InteractionSummarizer(object):
             if 'sentiment' in salience_content:
                 sentiment = salience_content['sentiment']
 
-        with codecs.open('interactions.csv', 'a', 'utf-8') as csv_file:
+        with codecs.open(self.INTERACTIONS_FILE, 'a', 'utf-8') as csv_file:
             csv_writer = csv.writer(csv_file)
 
-            csv_writer.writerow([character_names, created_at, who, likes, reblogs, sentiment])
+            csv_writer.writerow([
+                id, character_names, created_at,
+                who, likes, reblogs, sentiment])
