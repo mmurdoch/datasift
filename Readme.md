@@ -3,10 +3,6 @@
 2. Run `pip install requests`
 3. Run `pip install datasift`
 
-# Driving Question
-Marvel wants to serve its customers better. To achieve this they want to
-understand which of their characters are most popular.
-
 # Get Characters from Marvel
 
 * Run `python get-characters.py <public_key> <private_key>`
