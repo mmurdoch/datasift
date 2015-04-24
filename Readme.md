@@ -44,7 +44,7 @@ Each interaction is tagged with the list of characters mentioned in either its
 Note: Stop interactions from being streamed by using Ctrl+C. This will cause a
 stack trace to be printed. Unfortunately
 there doesn't currently seem to be a way to stop the DataSift Python client
-gracefully. [Issue raised on github](https://github.com/datasift/datasift-python/issues/54).
+gracefully. [Issue raised and pull request submitted on GitHub](https://github.com/datasift/datasift-python/pull/55).
 
 # Process Character Mentions from Files
 
