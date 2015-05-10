@@ -15,7 +15,14 @@ class BoxPlotData(object):
     def measure_name(self):
         return self._measure_name
 
+    @property
+    def _no_categories(self):
+        return len(self._category_statistics) == 0
+
     def _measure_limit(self, stat_name, limit_func):
+        if self._no_categories:
+            return 0
+
         return reduce(lambda x,y: limit_func(x,y),
             map(lambda s: s[stat_name], self._category_statistics))
 
@@ -37,6 +44,9 @@ class BoxPlotData(object):
 
     @property
     def max_category_name_length(self):
+        if self._no_categories:
+            return 0
+
         return reduce(lambda x,y: max(x,y),
             map(lambda s: len(s['name']), self._category_statistics))
 
@@ -135,13 +145,50 @@ class BoxPlot(object):
             self._sign_indicator)
 
     @property
+    def _largest_measure(self):
+        return max(abs(self._min_measure), abs(self._max_measure))
+
+    @property
+    def _number_line_count(self):
+        line_count = 0
+        largest_measure = self._largest_measure
+        while largest_measure > 0:
+            largest_measure /= 10
+            line_count += 1
+
+        return line_count
+
+    @property
+    def _number_line_multipliers(self):
+        return [10**i for i in range(self._number_line_count)][::-1]
+
+    @staticmethod
+    def _digit(place, n):
+        n_str = str(abs(n))
+        n_str_len = len(n_str)
+        place_str_len = len(str(place))
+
+        if place_str_len > n_str_len:
+            return ' '
+
+        return n_str[n_str_len - place_str_len]
+
+    @property
     def _number_lines(self):
         lines = []
 
-        line = self._spaces(self._spacing_for_measure_axis_line())
-        for i in range(self._min_measure, self._max_measure+1):
-            line += str(abs(i))
+        for multiplier in self._number_line_multipliers:
+            line = self._spaces(self._spacing_for_measure_axis_line())
 
-        lines.append(line)
+            for i in range(self._min_measure, self._max_measure+1):
+                line += BoxPlot._digit(multiplier, i)
+
+            lines.append(line)
 
         return lines
+
+    def render(self):
+        number_lines = '\n'.join(self._number_lines)
+
+        return (self._title + '\n' + self._sign_indicator_line + '\n' +
+            number_lines)
