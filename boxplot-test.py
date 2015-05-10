@@ -12,7 +12,7 @@ class BoxPlotTest(unittest.TestCase):
 
         self.assertEquals(1, boxplot._spacing_for_category_title())
         self.assertEquals(0, boxplot._spacing_for_measure_title())
-        self.assertEquals('Name Quality', boxplot.title)
+        self.assertEquals('Name Quality', boxplot._title)
         #                        -- ++
         #                        21012
         #                  a     |-:-| (6)
@@ -25,7 +25,7 @@ class BoxPlotTest(unittest.TestCase):
 
         self.assertEquals(1, boxplot._spacing_for_category_title())
         self.assertEquals(7, boxplot._spacing_for_measure_title())
-        self.assertEquals('Name        Quality', boxplot.title)
+        self.assertEquals('Name        Quality', boxplot._title)
         #                       ---------- ++++++++++
         #                       1                   1
         #                       098765432101234567890
@@ -39,7 +39,7 @@ class BoxPlotTest(unittest.TestCase):
 
         self.assertEquals(1, boxplot._spacing_for_category_title())
         self.assertEquals(4, boxplot._spacing_for_measure_title())
-        self.assertEquals('Name     Quality', boxplot.title)
+        self.assertEquals('Name     Quality', boxplot._title)
         #                       +++++++++++++++
         #                               1111111
         #                       234567890123456
@@ -53,11 +53,24 @@ class BoxPlotTest(unittest.TestCase):
 
         self.assertEquals(5, boxplot._spacing_for_category_title())
         self.assertEquals(7, boxplot._spacing_for_measure_title())
-        self.assertEquals('Nm            Quality', boxplot.title)
+        self.assertEquals('Nm            Quality', boxplot._title)
         #                         ---------- ++++++++++
         #                         1                   1
         #                         098765432101234567890
         #                  Animal |       --:--       | (18)
+
+    def test_positive_sign_indicator_line(self):
+        data = BoxPlotData('Animal', 'Height (cm)')
+        data.add_category_statistics('Cat', 5, 5, 7, 9, 12, 250)
+
+        boxplot = BoxPlot(data)
+
+        self.assertEquals(8, boxplot._spacing_for_sign_indicator_line())
+        #                  Animal Height (cm)
+        self.assertEquals('        ++++++++', boxplot._sign_indicator_line)
+        #                               111
+        #                          56789012
+        #                  Cat     |-:--  |
 
 
 if __name__ == '__main__':
