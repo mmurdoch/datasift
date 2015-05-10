@@ -1,6 +1,6 @@
 from marvelous import CharacterRetriever
 from marvelous import InteractionStreamProcessor
-from marvelous import InteractionSummarizer
+from marvelous import CharacterSentimentStatistics
 from marvelous import ResponseError
 from marvelous import TimeoutError
 import requests.exceptions
@@ -61,6 +61,33 @@ class InteractionStreamProcessorTest(unittest.TestCase):
             'interaction.content contains_any "Apeman,Human" OR ' +
             'interaction.hashtags contains_any "Apeman,Human"' +
             ') }', self.PROCESSOR._get_csdl(['Apeman','Human']))
+
+
+class CharacterSentimentStatisticsTest(unittest.TestCase):
+    def test_split_interaction(self):
+        statistics = CharacterSentimentStatistics()
+
+        statistics._add_sentiment([u'Name1', u'Name2'], 3)
+
+        self.assertEquals([3], statistics._get_sentiments(u'Name1'))
+        self.assertEquals([3], statistics._get_sentiments(u'Name2'))
+
+    def test_add_two_interactions(self):
+        statistics = CharacterSentimentStatistics()
+
+        statistics._add_sentiment([u'Name1'], 2)
+        statistics._add_sentiment([u'Name1'], 4)
+
+        self.assertEquals([2,4], statistics._get_sentiments(u'Name1'))
+
+    def test_get_mean_sentiment(self):
+        statistics = CharacterSentimentStatistics()
+
+        statistics._add_sentiment([u'N1'], 7)
+        statistics._add_sentiment([u'N1'], 8)
+        statistics._add_sentiment([u'N1'], 9)
+
+        self.assertEquals(8, statistics._get_mean_sentiment(u'N1'))
 
 
 if __name__ == '__main__':
