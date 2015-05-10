@@ -10,6 +10,8 @@ class BoxPlotTest(unittest.TestCase):
 
         boxplot = BoxPlot(data)
 
+        self.assertEquals(1, boxplot._spacing_for_category_title())
+        self.assertEquals(0, boxplot._spacing_for_measure_title())
         self.assertEquals('Name Quality', boxplot.title)
         #                        -- ++
         #                        21012
@@ -21,11 +23,13 @@ class BoxPlotTest(unittest.TestCase):
 
         boxplot = BoxPlot(data)
 
-        self.assertEquals('Name         Quality', boxplot.title)
-        #                        ---------- ++++++++++
-        #                        1                   1
-        #                        098765432101234567890
-        #                  a     |       --:--       | (18)
+        self.assertEquals(1, boxplot._spacing_for_category_title())
+        self.assertEquals(7, boxplot._spacing_for_measure_title())
+        self.assertEquals('Name        Quality', boxplot.title)
+        #                       ---------- ++++++++++
+        #                       1                   1
+        #                       098765432101234567890
+        #                  a    |       --:--       | (18)
 
     def test_title_for_positive_only_statistics(self):
         data = BoxPlotData('Name', 'Quality')
@@ -33,11 +37,13 @@ class BoxPlotTest(unittest.TestCase):
 
         boxplot = BoxPlot(data)
 
-        self.assertEquals('Name      Quality', boxplot.title)
-        #                        +++++++++++++++
-        #                                1111111
-        #                        234567890123456
-        #                  a     | ----:--     | (18)
+        self.assertEquals(1, boxplot._spacing_for_category_title())
+        self.assertEquals(4, boxplot._spacing_for_measure_title())
+        self.assertEquals('Name     Quality', boxplot.title)
+        #                       +++++++++++++++
+        #                               1111111
+        #                       234567890123456
+        #                  a    | ----:--     | (18)
 
     def test_title_for_long_category_names(self):
         data = BoxPlotData('Nm', 'Quality')
@@ -45,11 +51,14 @@ class BoxPlotTest(unittest.TestCase):
 
         boxplot = BoxPlot(data)
 
+        self.assertEquals(5, boxplot._spacing_for_category_title())
+        self.assertEquals(7, boxplot._spacing_for_measure_title())
         self.assertEquals('Nm            Quality', boxplot.title)
         #                         ---------- ++++++++++
         #                         1                   1
         #                         098765432101234567890
         #                  Animal |       --:--       | (18)
+
 
 if __name__ == '__main__':
     unittest.main()

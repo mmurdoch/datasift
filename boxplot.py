@@ -27,6 +27,14 @@ class BoxPlotData(object):
         return self._measure_limit('max', max)
 
     @property
+    def measure_name_length(self):
+        return len(self._measure_name)
+
+    @property
+    def category_title_length(self):
+        return len(self._category_title)
+
+    @property
     def max_category_name_length(self):
         return reduce(lambda x,y: max(x,y),
             map(lambda s: len(s['name']), self._category_statistics))
@@ -47,18 +55,24 @@ class BoxPlot(object):
     def __init__(self, data):
         self._data = data
 
-    def _spaces_for_measure_title(self):
+    def _spaces(self, length):
+        return ' ' * length
+
+    def _spacing_for_category_title(self):
+        category_title_length = self._data.category_title_length
+        max_title_length = self._data.max_category_name_length
+        return (max(category_title_length, max_title_length) -
+            category_title_length + 1)
+
+    def _spacing_for_measure_title(self):
         max_measure = self._data.max_measure
         min_measure = self._data.min_measure
-        return ' ' * (abs(max_measure - min_measure)/2 - len(self._data.category_title)/2)
-
-    def _spaces_for_category_title(self):
-        max_title_length = self._data.max_category_name_length
-        category_title = self._data.category_title
-        return ' ' * (max_title_length - len(category_title) + 1)
+        return max(0, ((max_measure - min_measure + 1)/2 -
+            self._data.measure_name_length/2))
 
     @property
     def title(self):
         return (self._data.category_title +
-            self._spaces_for_category_title() + ' ' +
-            self._spaces_for_measure_title() + self._data.measure_name)
+            self._spaces(self._spacing_for_category_title()) +
+            self._spaces(self._spacing_for_measure_title()) +
+            self._data.measure_name)
