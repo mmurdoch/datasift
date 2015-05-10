@@ -106,9 +106,21 @@ class BoxPlotTest(unittest.TestCase):
         #                             09876
         #                  Anger      | -:|
 
-# neg
-# Category title length: 8
-# Spacing for sign indicator: 3
+    def test_sign_indicator_line_spanning_zero(self):
+        data = BoxPlotData('Emotion', 'Positivity')
+        data.add_category_statistics('Worry', -5, -3, -1, 2, 4, 19)
+
+        boxplot = BoxPlot(data)
+
+        self.assertEquals(0, boxplot._spacing_for_sign_indicator())
+        self.assertEquals(8, boxplot._spacing_for_sign_indicator_line())
+        self.assertEquals(5, boxplot._negative_measure_length)
+        self.assertEquals(1, boxplot._zero_measure_length)
+        self.assertEquals(4, boxplot._positive_measure_length)
+        #                  Emotion Positivity
+        self.assertEquals('        ----- ++++', boxplot._sign_indicator_line)
+        #                          5432101234
+        #                  Worry   | --:--- |
 
 
 if __name__ == '__main__':

@@ -71,7 +71,7 @@ class BoxPlot(object):
     @property
     def _negative_measure_length(self):
         if self._min_measure < 0:
-            return abs(min(0, self._max_measure) - self._min_measure + 1)
+            return abs(min(-1, self._max_measure) - self._min_measure + 1)
         return 0
 
     @property
@@ -83,7 +83,7 @@ class BoxPlot(object):
     @property
     def _positive_measure_length(self):
         if self._max_measure > 0:
-            return self._max_measure - max(0, self._min_measure) + 1
+            return self._max_measure - max(1, self._min_measure) + 1
         return 0
 
     @property
