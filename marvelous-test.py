@@ -67,7 +67,7 @@ class CharacterSentimentStatisticsTest(unittest.TestCase):
     def test_split_interaction(self):
         statistics = CharacterSentimentStatistics()
 
-        statistics._add_sentiment([u'Name1', u'Name2'], 3)
+        statistics.add_sentiment([u'Name1', u'Name2'], 3)
 
         self.assertEquals([3], statistics._get_sentiments(u'Name1'))
         self.assertEquals([3], statistics._get_sentiments(u'Name2'))
@@ -75,17 +75,17 @@ class CharacterSentimentStatisticsTest(unittest.TestCase):
     def test_add_two_interactions(self):
         statistics = CharacterSentimentStatistics()
 
-        statistics._add_sentiment([u'Name1'], 2)
-        statistics._add_sentiment([u'Name1'], 4)
+        statistics.add_sentiment([u'Name1'], 2)
+        statistics.add_sentiment([u'Name1'], 4)
 
         self.assertEquals([2,4], statistics._get_sentiments(u'Name1'))
 
     def test_get_mean_sentiment(self):
         statistics = CharacterSentimentStatistics()
 
-        statistics._add_sentiment([u'N1'], 7)
-        statistics._add_sentiment([u'N1'], 8)
-        statistics._add_sentiment([u'N1'], 9)
+        statistics.add_sentiment([u'N1'], 7)
+        statistics.add_sentiment([u'N1'], 8)
+        statistics.add_sentiment([u'N1'], 9)
 
         self.assertEquals(8, statistics._get_mean_sentiment(u'N1'))
 

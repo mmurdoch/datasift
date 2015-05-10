@@ -314,13 +314,6 @@ class CharacterSentimentStatistics(object):
         """
         self._character_sentiments = { }
 
-    def _add_sentiment(self, character_names, sentiment):
-        for character_name in character_names:
-            if not character_name in self._character_sentiments:
-                self._character_sentiments[character_name] = []
-            character_sentiment = self._character_sentiments[character_name]
-            character_sentiment.append(sentiment)
-
     def _get_sentiments(self, character_name):
         if character_name in self._character_sentiments:
             return self._character_sentiments[character_name]
@@ -350,26 +343,32 @@ class CharacterSentimentStatistics(object):
         variance = sum_of_squares/(count - 1)
         return variance**0.5
 
-    def add_interaction(self, interaction):
+    def _get_min_sentiment(self, character_name):
+        sentiments = self._get_sentiments(character_name)
+
+        return min(sentiments)
+
+    def _get_max_sentiment(self, character_name):
+        sentiments = self._get_sentiments(character_name)
+
+        return max(sentiments)
+
+    def add_sentiment(self, character_names, sentiment):
         """
-        Adds an interaction to the be summarized.
+        Adds a set of characters and the sentiment expressed towards them.
 
-        :param interaction interaction: The interaction to add
+        :param array[string] character_names: The names of the characters
+        :param int sentiment: The sentiment expressed towards the character
         """
-        character_names = interaction['interaction']['tags']
+        for character_name in character_names:
+            if not character_name in self._character_sentiments:
+                self._character_sentiments[character_name] = []
+            character_sentiment = self._character_sentiments[character_name]
+            character_sentiment.append(sentiment)
 
-        # Assume missing sentiment is neutral
-        sentiment = 0
-        if 'content' in interaction.get('salience', {}):
-            salience_content = interaction['salience']['content']
-            if 'sentiment' in salience_content:
-                sentiment = salience_content['sentiment']
-
-        self._add_sentiment(character_names, sentiment)
-
-    def summarize(self):
+    def calculate(self):
         """
-        Summarizes the added interactions.
+        Calculates statistics for the added character sentiments.
 
         :return list: Summary statistics for the interactions. Each row in
         the list corresponds to a single character and contains the following
@@ -378,6 +377,8 @@ class CharacterSentimentStatistics(object):
             'mean' - the mean sentiment towards the character
             'stddev' - the standard deviation of the sentiment towards the character
             'count' - the number of interactions mentioning the character
+            'min' - the most negative sentiment towards the character
+            'max' - the most positive sentiment towards the character
         """
         summary = []
 
@@ -385,6 +386,8 @@ class CharacterSentimentStatistics(object):
             summary.append({'name': character_name,
                 'count': self._get_count_sentiment(character_name),
                 'mean': self._get_mean_sentiment(character_name),
-                'stddev': self._get_stddev_sentiment(character_name)})
+                'stddev': self._get_stddev_sentiment(character_name),
+                'min': self._get_min_sentiment(character_name),
+                'max': self._get_max_sentiment(character_name)})
 
         return summary
