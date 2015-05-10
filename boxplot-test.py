@@ -78,8 +78,8 @@ class BoxPlotTest(unittest.TestCase):
 
         boxplot = BoxPlot(data)
 
-        self.assertEquals(1, boxplot._spacing_for_sign_indicator())
-        self.assertEquals(8, boxplot._spacing_for_sign_indicator_line())
+        self.assertEquals(1, boxplot._spacing_for_measure_axis())
+        self.assertEquals(8, boxplot._spacing_for_measure_axis_line())
         self.assertEquals(0, boxplot._negative_measure_length)
         self.assertEquals(0, boxplot._zero_measure_length)
         self.assertEquals(8, boxplot._positive_measure_length)
@@ -95,8 +95,8 @@ class BoxPlotTest(unittest.TestCase):
 
         boxplot = BoxPlot(data)
 
-        self.assertEquals(3, boxplot._spacing_for_sign_indicator())
-        self.assertEquals(11, boxplot._spacing_for_sign_indicator_line())
+        self.assertEquals(3, boxplot._spacing_for_measure_axis())
+        self.assertEquals(11, boxplot._spacing_for_measure_axis_line())
         self.assertEquals(5, boxplot._negative_measure_length)
         self.assertEquals(0, boxplot._zero_measure_length)
         self.assertEquals(0, boxplot._positive_measure_length)
@@ -112,14 +112,27 @@ class BoxPlotTest(unittest.TestCase):
 
         boxplot = BoxPlot(data)
 
-        self.assertEquals(0, boxplot._spacing_for_sign_indicator())
-        self.assertEquals(8, boxplot._spacing_for_sign_indicator_line())
+        self.assertEquals(0, boxplot._spacing_for_measure_axis())
+        self.assertEquals(8, boxplot._spacing_for_measure_axis_line())
         self.assertEquals(5, boxplot._negative_measure_length)
         self.assertEquals(1, boxplot._zero_measure_length)
         self.assertEquals(4, boxplot._positive_measure_length)
         #                  Emotion Positivity
         self.assertEquals('        ----- ++++', boxplot._sign_indicator_line)
         #                          5432101234
+        #                  Worry   | --:--- |
+
+    def test_number_lines(self):
+        data = BoxPlotData('Emotion', 'Positivity')
+        data.add_category_statistics('Worry', -5, -3, -1, 2, 4, 19)
+
+        boxplot = BoxPlot(data)
+
+        self.assertEquals(0, boxplot._spacing_for_measure_axis())
+        self.assertEquals(8, boxplot._spacing_for_measure_axis_line())
+        #                  Emotion Positivity
+        #                          ----- ++++
+        self.assertEquals('        5432101234', boxplot._number_lines[0])
         #                  Worry   | --:--- |
 
 

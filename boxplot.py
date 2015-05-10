@@ -62,11 +62,11 @@ class BoxPlot(object):
     def _spacing_for_measure_title(self):
         return max(0, self._measure_centre - self._measure_name_centre)
 
-    def _spacing_for_sign_indicator(self):
+    def _spacing_for_measure_axis(self):
         return max(0, self._measure_name_centre - self._measure_centre)
 
-    def _spacing_for_sign_indicator_line(self):
-        return (len(self._category_title) + self._spacing_for_sign_indicator())
+    def _spacing_for_measure_axis_line(self):
+        return (len(self._category_title) + self._spacing_for_measure_axis())
 
     @property
     def _negative_measure_length(self):
@@ -131,5 +131,17 @@ class BoxPlot(object):
 
     @property
     def _sign_indicator_line(self):
-        return (self._spaces(self._spacing_for_sign_indicator_line()) +
+        return (self._spaces(self._spacing_for_measure_axis_line()) +
             self._sign_indicator)
+
+    @property
+    def _number_lines(self):
+        lines = []
+
+        line = self._spaces(self._spacing_for_measure_axis_line())
+        for i in range(self._min_measure, self._max_measure+1):
+            line += str(abs(i))
+
+        lines.append(line)
+
+        return lines
