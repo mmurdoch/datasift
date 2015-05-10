@@ -1,3 +1,4 @@
+from __future__ import print_function
 
 
 class BoxPlotData(object):
@@ -58,18 +59,44 @@ class BoxPlot(object):
     def _spaces(self, length):
         return ' ' * length
 
-    def _spacing_for_category_title(self):
-        category_title_length = self._data.category_title_length
-        max_title_length = self._data.max_category_name_length
-        return (max(category_title_length, max_title_length) -
-            category_title_length + 1)
+    def _spacing_for_measure_title(self):
+        return max(0, self._measure_centre - self._measure_name_centre)
+
+    def _spacing_for_sign_indicator(self):
+        return max(0, self._measure_name_centre - self._measure_centre)
+
+    def _spacing_for_sign_indicator_line(self):
+        return (len(self._category_title) + self._spacing_for_sign_indicator())
+
+    @property
+    def _negative_measure_length(self):
+        if self._min_measure < 0:
+            return abs(min(0, self._max_measure) - self._min_measure + 1)
+        return 0
+
+    @property
+    def _zero_measure_length(self):
+        if self._min_measure < 0 and self._max_measure > 0:
+            return 1
+        return 0
+
+    @property
+    def _positive_measure_length(self):
+        if self._max_measure > 0:
+            return self._max_measure - max(0, self._min_measure) + 1
+        return 0
+
+    @property
+    def _min_measure(self):
+        return self._data.min_measure
+
+    @property
+    def _max_measure(self):
+        return self._data.max_measure
 
     @property
     def _measure_length(self):
-        max_measure = self._data.max_measure
-        min_measure = self._data.min_measure
-
-        return max_measure - min_measure + 1
+        return self._max_measure - self._min_measure + 1
 
     @property
     def _measure_centre(self):
@@ -79,15 +106,11 @@ class BoxPlot(object):
     def _measure_name_centre(self):
         return self._data.measure_name_length/2
 
-    def _spacing_for_measure_title(self):
-        return max(0, self._measure_centre - self._measure_name_centre)
-
-    def _spacing_for_sign_indicator(self):
-        return max(0, self._measure_name_centre - self._measure_centre)
-
-    def _spacing_for_sign_indicator_line(self):
-        return (len(self._category_title) +
-            self._spacing_for_sign_indicator())
+    def _spacing_for_category_title(self):
+        category_title_length = self._data.category_title_length
+        max_title_length = self._data.max_category_name_length
+        return (max(category_title_length, max_title_length) -
+            category_title_length + 1)
 
     @property
     def _category_title(self):
@@ -101,6 +124,12 @@ class BoxPlot(object):
             self._data.measure_name)
 
     @property
+    def _sign_indicator(self):
+        return ('-' * self._negative_measure_length +
+            ' ' * self._zero_measure_length +
+            '+' * self._positive_measure_length)
+
+    @property
     def _sign_indicator_line(self):
         return (self._spaces(self._spacing_for_sign_indicator_line()) +
-            '+' * self._measure_length)
+            self._sign_indicator)
