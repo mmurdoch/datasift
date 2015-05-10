@@ -43,11 +43,3 @@ for stats in character_stats:
 
 boxplot = BoxPlot(boxplot_data)
 print(boxplot.render())
-
-
-#Character                 Sentiment
-#           ------------------- +++++++++++++++++++
-#           1111111111                   1111111111
-#           987654321098765432101234567890123456789
-#Spider-Man                 .      -*-     .        (240)
-#...

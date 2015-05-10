@@ -221,8 +221,8 @@ class BoxPlotTest(unittest.TestCase):
         #                         ---------- ++++++++++
         #                         1                   1
         #                         098765432101234567890
-        #self.assertEquals('Animal |       --:--       | (18)',
-        #    boxplot._category_lines[0])
+        self.assertEquals('Animal |       --:--       | (18)',
+            boxplot._category_lines[0])
 
 
 if __name__ == '__main__':

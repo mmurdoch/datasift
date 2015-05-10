@@ -50,6 +50,10 @@ class BoxPlotData(object):
         return reduce(lambda x,y: max(x,y),
             map(lambda s: len(s['name']), self._category_statistics))
 
+    @property
+    def category_statistics(self):
+        return list(self._category_statistics)
+
     def add_category_statistics(self, category_name, min,
         min_dispersion, location, max_dispersion, max, count):
         self._category_statistics.append({
@@ -116,11 +120,14 @@ class BoxPlot(object):
     def _measure_name_centre(self):
         return self._data.measure_name_length/2
 
+    def _spacing_for_category_name(self, category_name_length):
+        max_length = self._data.max_category_name_length
+        return (max(category_name_length, max_length) -
+            category_name_length + 1)
+
     def _spacing_for_category_title(self):
         category_title_length = self._data.category_title_length
-        max_title_length = self._data.max_category_name_length
-        return (max(category_title_length, max_title_length) -
-            category_title_length + 1)
+        return self._spacing_for_category_name(category_title_length)
 
     @property
     def _category_title(self):
@@ -187,8 +194,28 @@ class BoxPlot(object):
 
         return lines
 
+    @property
+    def _category_lines(self):
+        lines = []
+
+        for stats in self._data.category_statistics:
+            category_name = stats['name']
+            line = (category_name + self._spaces(
+                self._spacing_for_category_name(len(category_name))))
+
+            lines.append(line)
+
+        # TODO Add concept of a Scale
+        # Initially from minimum value to maximum value
+        # Can map a value to a character offset (e.g. -17 -> 0, 20 -> 40)
+        # Must accommodate decimal numbers (but always map to an integer)
+        # This will impact measure axis labelling...!
+
+        return lines
+
     def render(self):
         number_lines = '\n'.join(self._number_lines)
+        category_lines = '\n'.join(self._category_lines)
 
         return (self._title + '\n' + self._sign_indicator_line + '\n' +
-            number_lines)
+            number_lines + '\n' + category_lines)
