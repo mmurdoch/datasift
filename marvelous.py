@@ -262,7 +262,7 @@ class InteractionFileProcessor(object):
             self._get_interaction(f)), interaction_files)
 
 
-class InteractionSummarizer(object):
+class InteractionFileSummarizer(object):
     INTERACTIONS_FILE = 'interactions.csv'
 
     def __init__(self):
@@ -271,12 +271,39 @@ class InteractionSummarizer(object):
         """
         if os.path.isfile(self.INTERACTIONS_FILE):
             os.remove(self.INTERACTIONS_FILE)
+        self._extractor = SummaryExtractor()
 
     def add_interaction(self, interaction):
         """
         Adds an interaction to be summarized.
 
         :param interaction interaction: The interaction to add
+        """
+        summary = self._extractor.extract_summary(interaction)
+
+        with codecs.open(self.INTERACTIONS_FILE, 'a', 'utf-8') as csv_file:
+            csv_writer = csv.writer(csv_file)
+
+            csv_writer.writerow([
+                summary['id'], summary['character-names'],
+                summary['created-at'],
+                summary['who'], summary['likes'], summary['reblogs'],
+                summary['sentiment']])
+
+
+class SummaryExtractor(object):
+    def __init__(self):
+        """
+        Summarizes interactions.
+        """
+        pass
+
+    def extract_summary(self, interaction):
+        """
+        Extracts summary data from an interaction.
+
+        :param interaction interaction: The interaction to add
+        :return: extracted summary data
         """
         id = interaction['interaction']['id']
         character_names = map(
@@ -301,12 +328,11 @@ class InteractionSummarizer(object):
             if 'sentiment' in salience_content:
                 sentiment = salience_content['sentiment']
 
-        with codecs.open(self.INTERACTIONS_FILE, 'a', 'utf-8') as csv_file:
-            csv_writer = csv.writer(csv_file)
-
-            csv_writer.writerow([
-                id, character_names, created_at,
-                who, likes, reblogs, sentiment])
+        return {
+            'id': id, 'character-names': character_names,
+            'created-at': created_at, 'who': who, 'likes': likes,
+            'reblogs': reblogs, 'sentiment': sentiment
+        }
 
 
 class CharacterSentimentStatistics(object):

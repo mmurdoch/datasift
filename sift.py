@@ -15,7 +15,7 @@ try:
         print('Usage: python sift.py [<datasift_username> <datasift_api_key>]')
         exit(0)
 
-    summarizer = InteractionSummarizer()
+    summarizer = InteractionFileSummarizer()
     processor = None
     if argument_count == 3:
         datasift_username = sys.argv[1]

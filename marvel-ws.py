@@ -3,6 +3,8 @@ from bson.objectid import ObjectId
 from flask import Flask, request, url_for, abort, jsonify, make_response
 from pymongo import MongoClient, ASCENDING
 from pymongo.errors import DuplicateKeyError
+from marvelous import SummaryExtractor
+from marvelous import CharacterSentimentStatistics
 
 class MissingFieldError(Exception):
     def __init__(self, field_name):
@@ -21,6 +23,7 @@ client = MongoClient()
 db = client.marvel
 interactions = db.interactions
 
+#TODO This is currently incorrectly detecting duplicates...
 #interactions.create_index([('id', ASCENDING)], unique=True)
 
 api = Flask(__name__)
@@ -62,7 +65,6 @@ def create_interaction():
 
     interaction = request.json
     id = interaction['interaction']['id']
-    print('Received ID: {0}'.format(id))
 
     try:
         interactions.insert(interaction)
@@ -78,7 +80,19 @@ def create_interaction():
 
 @api.route('/marvel/api/v1.0/statistics', methods=['GET'])
 def get_statistics():
-    pass
+    #Bare minimum: Return JSON of all characters with statistics per name
+    all_interactions = remove_mongodb_ids(interactions.find())
+
+    summary_extractor = SummaryExtractor()
+    summaries = map(summary_extractor.extract_summary, all_interactions)
+
+    statistics = CharacterSentimentStatistics()
+    for summary in summaries:
+        statistics.add_sentiment(
+            summary['character-names'], summary['sentiment'])
+
+    return jsonify({'statistics': statistics.calculate()}), 200
+
 
 if __name__ == '__main__':
     api.run(debug=True)
