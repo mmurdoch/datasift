@@ -21,7 +21,7 @@ client = MongoClient()
 db = client.marvel
 interactions = db.interactions
 
-interactions.create_index([('id', ASCENDING)], unique=True)
+#interactions.create_index([('id', ASCENDING)], unique=True)
 
 api = Flask(__name__)
 
@@ -60,28 +60,16 @@ def create_interaction():
     if not request.json:
         return create_error('Missing interaction JSON')
 
-    id_field = 'id'
-    names_field = 'names'
-    sentiment_field = 'sentiment'
-    try:
-        id = get_field(request, id_field)
-        names = get_field(request, names_field)
-        sentiment = get_field(request, sentiment_field)
-    except MissingFieldError as e:
-        return e.error_response
-
-    interaction = {
-        id_field: id,
-        names_field: names,
-        sentiment_field: sentiment
-    }
+    interaction = request.json
+    id = interaction['interaction']['id']
+    print('Received ID: {0}'.format(id))
 
     try:
         interactions.insert(interaction)
     except DuplicateKeyError:
         return jsonify({'error': 'Interaction with id {0} already exists'.format(id)}), 409
 
-    interaction_uri = url_for('get_interaction', id=interaction['id'], _external=True)
+    interaction_uri = url_for('get_interaction', id=id, _external=True)
 
     response = make_response(jsonify(remove_mongodb_id(interaction)), 201)
     response.headers['Location'] = interaction_uri
