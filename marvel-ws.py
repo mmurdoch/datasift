@@ -64,6 +64,13 @@ def create_interaction():
         return create_error('Missing interaction JSON')
 
     interaction = request.json
+
+    if not 'interaction' in interaction:
+        return jsonify({'error': 'Missing interaction field'}), 400
+
+    if not 'id' in interaction['interaction']:
+        return jsonify({'error': 'Missing ID field in interaction'}), 400
+
     id = interaction['interaction']['id']
 
     try:

@@ -19,9 +19,14 @@ paths:
         201:
           description: Created
         400:
-          description: Invalid interaction field
+          description: Missing interaction field
+          schema:
+            $ref: '#/definitions/error'
         409:
           description: Interaction already exists with the same ID
+          schema:
+            $ref: '#/definitions/error'
+
   /interactions/{id}:
     get:
       responses:
@@ -42,6 +47,11 @@ paths:
           schema:
             $ref: '#/definitions/statistics'
 definitions:
+  error:
+    type: object
+    properties:
+      error:
+        type: string
   statistics:
     type: object
     required:

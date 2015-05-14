@@ -431,7 +431,7 @@ class DateEncoder(json.JSONEncoder):
 
 class MarvelWsClient(object):
     """
-    Reads interactions from the file system and sends them to the web service.
+    Client for the Marvel character statistics web service.
     """
     def __init__(self):
         pass
@@ -443,7 +443,8 @@ class MarvelWsClient(object):
     def _send_interaction(self, interaction):
         try:
             interaction_json = json.dumps(interaction, cls=DateEncoder)
-            print('Sending ID: {0}'.format(interaction['interaction']['id']))
+            print('Sending interaction with ID: {0}'.format(
+                interaction['interaction']['id']))
             response = requests.post(
                 'http://localhost:5000/marvel/api/v1.0/interactions',
                 data=interaction_json,
@@ -456,9 +457,25 @@ class MarvelWsClient(object):
         if status_code != 201:
             raise ResponseError(status_code, response.reason)
 
-    def process(self):
+    def upload(self):
+        """
+        Uploads captured interaction data to the web service.
+        """
         interaction_files = glob.glob('{0}/*{1}'.format(
             INTERACTIONS_DIR, INTERACTION_EXT))
 
         map(lambda f: self._send_interaction(
             self._get_interaction(f)), interaction_files)
+
+    def get_statistics(self):
+        """
+        Retrieves statistics based on the uploaded interations.
+        """
+        try:
+            response = requests.get(
+                'http://localhost:5000/marvel/api/v1.0/statistics',
+                timeout=TIMEOUT_SECONDS)
+
+            return json.loads(response.text)['statistics']
+        except requests.exceptions.Timeout:
+            raise TimeoutError(TIMEOUT_SECONDS)
