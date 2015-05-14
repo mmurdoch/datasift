@@ -1,5 +1,7 @@
 swagger: "2.0"
 info:
+  description: |
+    Calculates sentiment statistics for Marvel characters.
   version: "1.0"
   title: Endless Marvels
 host: localhost
@@ -35,5 +37,45 @@ paths:
   /statistics:
     get:
       responses:
-        200:
+        "200":
           description: OK
+          schema:
+            $ref: '#/definitions/statistics'
+definitions:
+  statistics:
+    type: object
+    required:
+    - statistics
+    properties:
+      statistics:
+        type: array
+        items:
+          $ref: '#/definitions/character_statistics'
+  character_statistics:
+    type: object
+    required:
+    - name
+    - count
+    - max
+    - min
+    - mean
+    - stddev
+    properties:
+      name:
+        type: string
+      count:
+        type: integer
+        format: int32
+        minimum: 0
+      max:
+        type: integer
+        format: int32
+      min:
+        type: integer
+        format: int32
+      mean:
+        type: number
+        format: double
+      stddev:
+        type: number
+        format: double
