@@ -1,0 +1,36 @@
+swagger: "2.0"
+info:
+  version: "1.0"
+  title: Endless Marvels
+host: localhost
+schemes:
+  - http
+consumes:
+  - application/json
+produces:
+  - application/json
+paths:
+  /marvel/api/v1/interactions:
+    post:
+      responses:
+        201:
+          description: Created
+        400:
+          description: Invalid interaction field
+  /marvel/api/v1/interactions/{id}:
+    get:
+      responses:
+        200:
+          description: OK
+      parameters:
+        - name: id
+          in: path
+          description: ID of interaction to retrieve
+          required: true
+          type: string
+          format: int64
+  /marvel/api/v1/statstics:
+    get:
+      responses:
+        200:
+          description: OK
