@@ -1,0 +1,91 @@
+swagger: "2.0"
+info:
+  description: |
+    Calculates sentiment statistics for Marvel characters.
+  version: "1.0"
+  title: Endless Marvels
+host: localhost
+basePath: /marvel/api/v1.0
+schemes:
+  - http
+consumes:
+  - application/json
+produces:
+  - application/json
+paths:
+  /interactions:
+    post:
+      responses:
+        201:
+          description: Created
+        400:
+          description: Missing interaction field
+          schema:
+            $ref: '#/definitions/error'
+        409:
+          description: Interaction already exists with the same ID
+          schema:
+            $ref: '#/definitions/error'
+
+  /interactions/{id}:
+    get:
+      responses:
+        200:
+          description: OK
+      parameters:
+        - name: id
+          in: path
+          description: ID of interaction to retrieve
+          required: true
+          type: string
+          format: int64
+  /statistics:
+    get:
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/statistics'
+definitions:
+  error:
+    type: object
+    properties:
+      error:
+        type: string
+  statistics:
+    type: object
+    required:
+    - statistics
+    properties:
+      statistics:
+        type: array
+        items:
+          $ref: '#/definitions/character_statistics'
+  character_statistics:
+    type: object
+    required:
+    - name
+    - count
+    - max
+    - min
+    - mean
+    - stddev
+    properties:
+      name:
+        type: string
+      count:
+        type: integer
+        format: int32
+        minimum: 0
+      max:
+        type: integer
+        format: int32
+      min:
+        type: integer
+        format: int32
+      mean:
+        type: number
+        format: double
+      stddev:
+        type: number
+        format: double

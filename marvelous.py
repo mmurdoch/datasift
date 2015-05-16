@@ -1,4 +1,6 @@
 from __future__ import print_function
+from bson import json_util
+from datetime import datetime
 import codecs
 import csv
 import datasift
@@ -15,6 +17,7 @@ import uuid
 CHARACTERS_FILE = 'characters.csv'
 INTERACTIONS_DIR = 'interactions'
 INTERACTION_EXT = '.int'
+TIMEOUT_SECONDS = 10
 
 
 class TimeoutError(Exception):
@@ -39,7 +42,6 @@ class ResponseError(Exception):
 class CharacterRetriever(object):
     CHARACTERS_URI = 'http://gateway.marvel.com:80/v1/public/characters'
     LIMIT = 100
-    TIMEOUT_SECONDS = 10
 
     def __init__(self, public_key, private_key):
         """
@@ -87,9 +89,9 @@ class CharacterRetriever(object):
         try:
             response = get_function(
                 self.CHARACTERS_URI, params = parameters,
-                timeout = self.TIMEOUT_SECONDS)
+                timeout = TIMEOUT_SECONDS)
         except requests.exceptions.Timeout:
-            raise TimeoutError(self.TIMEOUT_SECONDS)
+            raise TimeoutError(TIMEOUT_SECONDS)
 
         status_code = response.status_code
         if status_code != 200:
@@ -260,7 +262,7 @@ class InteractionFileProcessor(object):
             self._get_interaction(f)), interaction_files)
 
 
-class InteractionSummarizer(object):
+class InteractionFileSummarizer(object):
     INTERACTIONS_FILE = 'interactions.csv'
 
     def __init__(self):
@@ -269,12 +271,39 @@ class InteractionSummarizer(object):
         """
         if os.path.isfile(self.INTERACTIONS_FILE):
             os.remove(self.INTERACTIONS_FILE)
+        self._extractor = SummaryExtractor()
 
     def add_interaction(self, interaction):
         """
         Adds an interaction to be summarized.
 
         :param interaction interaction: The interaction to add
+        """
+        summary = self._extractor.extract_summary(interaction)
+
+        with codecs.open(self.INTERACTIONS_FILE, 'a', 'utf-8') as csv_file:
+            csv_writer = csv.writer(csv_file)
+
+            csv_writer.writerow([
+                summary['id'], summary['character-names'],
+                summary['created-at'],
+                summary['who'], summary['likes'], summary['reblogs'],
+                summary['sentiment']])
+
+
+class SummaryExtractor(object):
+    def __init__(self):
+        """
+        Summarizes interactions.
+        """
+        pass
+
+    def extract_summary(self, interaction):
+        """
+        Extracts summary data from an interaction.
+
+        :param interaction interaction: The interaction to add
+        :return: extracted summary data
         """
         id = interaction['interaction']['id']
         character_names = map(
@@ -299,9 +328,154 @@ class InteractionSummarizer(object):
             if 'sentiment' in salience_content:
                 sentiment = salience_content['sentiment']
 
-        with codecs.open(self.INTERACTIONS_FILE, 'a', 'utf-8') as csv_file:
-            csv_writer = csv.writer(csv_file)
+        return {
+            'id': id, 'character-names': character_names,
+            'created-at': created_at, 'who': who, 'likes': likes,
+            'reblogs': reblogs, 'sentiment': sentiment
+        }
 
-            csv_writer.writerow([
-                id, character_names, created_at,
-                who, likes, reblogs, sentiment])
+
+class CharacterSentimentStatistics(object):
+    def __init__(self):
+        """
+        Calculates character sentiment statistics.
+        """
+        self._character_sentiments = { }
+
+    def _get_sentiments(self, character_name):
+        if character_name in self._character_sentiments:
+            return self._character_sentiments[character_name]
+
+        return []
+
+    def _get_count_sentiment(self, character_name):
+        sentiments = self._get_sentiments(character_name)
+
+        return len(sentiments)
+
+    def _get_mean_sentiment(self, character_name):
+        sentiments = self._get_sentiments(character_name)
+
+        return sum(sentiments) / float(len(sentiments))
+
+    def _get_stddev_sentiment(self, character_name):
+        sentiments = self._get_sentiments(character_name)
+
+        mean = self._get_mean_sentiment(character_name)
+        sum_of_squares = sum((s-mean)**2 for s in sentiments)
+
+        count = self._get_count_sentiment(character_name)
+        if count < 2:
+            return 0
+
+        variance = sum_of_squares/(count - 1)
+        return variance**0.5
+
+    def _get_min_sentiment(self, character_name):
+        sentiments = self._get_sentiments(character_name)
+
+        return min(sentiments)
+
+    def _get_max_sentiment(self, character_name):
+        sentiments = self._get_sentiments(character_name)
+
+        return max(sentiments)
+
+    def add_sentiment(self, character_names, sentiment):
+        """
+        Adds a set of characters and the sentiment expressed towards them.
+
+        :param array[string] character_names: The names of the characters
+        :param int sentiment: The sentiment expressed towards the character
+        """
+        for character_name in character_names:
+            if not character_name in self._character_sentiments:
+                self._character_sentiments[character_name] = []
+            character_sentiment = self._character_sentiments[character_name]
+            character_sentiment.append(sentiment)
+
+    def calculate(self):
+        """
+        Calculates statistics for the added character sentiments.
+
+        :return list: Summary statistics for the interactions. Each row in
+        the list corresponds to a single character and contains the following
+        keys::
+            'name' - the character's name
+            'mean' - the mean sentiment towards the character
+            'stddev' - the standard deviation of the sentiment towards the character
+            'count' - the number of interactions mentioning the character
+            'min' - the most negative sentiment towards the character
+            'max' - the most positive sentiment towards the character
+        """
+        summary = []
+
+        for character_name in self._character_sentiments.keys():
+            summary.append({'name': character_name,
+                'count': self._get_count_sentiment(character_name),
+                'mean': self._get_mean_sentiment(character_name),
+                'stddev': self._get_stddev_sentiment(character_name),
+                'min': self._get_min_sentiment(character_name),
+                'max': self._get_max_sentiment(character_name)})
+
+        return summary
+
+
+class DateEncoder(json.JSONEncoder):
+    def default(self, obj):
+        if isinstance(obj, datetime):
+            return ''
+        # Let the base class default method raise the TypeError
+        return json.JSONEncoder.default(self, obj)
+
+
+class MarvelWsClient(object):
+    """
+    Client for the Marvel character statistics web service.
+    """
+    def __init__(self):
+        pass
+
+    def _get_interaction(self, interaction_filename):
+        with open(interaction_filename, 'rb') as interaction_file:
+            return pickle.load(interaction_file)
+
+    def _send_interaction(self, interaction):
+        try:
+            interaction_json = json.dumps(interaction, cls=DateEncoder)
+            print('Sending interaction with ID: {0}'.format(
+                interaction['interaction']['id']))
+            response = requests.post(
+                'http://localhost:5000/marvel/api/v1.0/interactions',
+                data=interaction_json,
+                headers = {'Content-Type': 'application/json'},
+                timeout=TIMEOUT_SECONDS)
+        except requests.exceptions.Timeout:
+            raise TimeoutError(TIMEOUT_SECONDS)
+
+        status_code = response.status_code
+        if status_code != 201:
+            raise ResponseError(status_code, response.reason)
+
+    def upload(self):
+        """
+        Uploads captured interaction data to the web service.
+        """
+        interaction_files = glob.glob('{0}/*{1}'.format(
+            INTERACTIONS_DIR, INTERACTION_EXT))
+
+        map(lambda f: self._send_interaction(
+            self._get_interaction(f)), interaction_files)
+
+    def get_statistics(self):
+        """
+        Retrieves statistics based on the uploaded interations.
+        """
+        try:
+            response = requests.get(
+                'http://localhost:5000/marvel/api/v1.0/statistics',
+                timeout=TIMEOUT_SECONDS)
+
+            return json.loads(response.text)['statistics']
+        except requests.exceptions.Timeout:
+            raise TimeoutError(TIMEOUT_SECONDS)
