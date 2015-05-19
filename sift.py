@@ -1,5 +1,5 @@
 from __future__ import print_function
-from marvelous import InteractionSummarizer
+from marvelous import InteractionFileSummarizer
 from marvelous import InteractionStreamProcessor
 from marvelous import InteractionFileProcessor
 import csv
